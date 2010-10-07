@@ -1,0 +1,9 @@
+<p><%= notice %></p>
+
+<p><%= alert %></p>
+
+<%= form_tag(user_session_path, :method => "post") do %>  
+  <label>Username: <input type="text" class="text" name="user[username]"></label>
+  <label>Password: <input type="password" class="text" name="user[password]"></label>
+  <input type="submit" value="Submit">
+<% end %>
