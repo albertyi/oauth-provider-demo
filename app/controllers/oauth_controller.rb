@@ -9,13 +9,22 @@ class OauthController < ApplicationController
   end
 
   def access_token
-    access_grant = AccessGrant.find_by_code(params[:code])
-    if access_grant
-      access_grant.start_expiry_period!
-      render :json => {:access_token => access_grant.access_token, :refresh_token => access_grant.refresh_token, :expires_in => access_grant.access_token_expires_at}
-    else
-      render :json => {:error => "Could not authenticate access code"}
+    application = ClientApplication.authenticate(params[:client_id], params[:client_secret])
+    
+    if application.nil?
+      render :json => {:error => "Could not find application"}
+      return
     end
+    
+    access_grant = AccessGrant.authenticate(params[:code], application.id)
+    
+    if access_grant.nil?
+      render :json => {:error => "Could not authenticate access code"}
+      return
+    end
+    
+    access_grant.start_expiry_period!
+    render :json => {:access_token => access_grant.access_token, :refresh_token => access_grant.refresh_token, :expires_in => access_grant.access_token_expires_at}
   end
 
   def user
